@@ -5,9 +5,7 @@ nav:
 
 theme:
     name: material
-    custom_dir: custom
     language: en
-    favicon: assets/favicon.png
     font:
         text: Roboto
         code: Roboto Mono

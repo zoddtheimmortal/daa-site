@@ -1,7 +1,8 @@
 site_name: Clique Listing Algorithms
 
 nav:
-    - Arboricity_1985: arboricity.md
+    - Home: index.md
+    - Arboricity 1985: arboricity.md
 
 theme:
     name: material

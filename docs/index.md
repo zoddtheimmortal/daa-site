@@ -9,9 +9,8 @@ In computer science, the **clique problem** is the computational problem of find
 ## Algorithms
 
 -   [Arboricity and Subgraph Listing Algorithms](arboricity.md) - 1985
+-   [Computational Techniques for Maximum Clique Problems](tomita.md) - 2006
 
 ## Visualization
 
 <iframe src="./clique_animation.html" width="100%" height="600px"></iframe>
-
--   [Arboricity and Subgraph Listing Algorithms](arboricity.md) - 1985

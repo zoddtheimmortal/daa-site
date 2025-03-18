@@ -3,6 +3,7 @@ site_name: Clique Listing Algorithms
 nav:
     - Home: index.md
     - Arboricity 1985: arboricity.md
+    - Tomita 2006: tomita.md
 
 theme:
     name: material

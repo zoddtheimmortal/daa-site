@@ -14,3 +14,5 @@ In computer science, the **clique problem** is the computational problem of find
 ## Visualization
 
 <iframe src="./clique_animation.html" width="100%" height="600px"></iframe>
+
+<img src="./graphs/akira.png" alt="Akira" width="50" height="100">

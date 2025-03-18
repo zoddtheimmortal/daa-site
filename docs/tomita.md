@@ -144,73 +144,73 @@ int main(){
 
 ```
 
-### Issues
+<!-- ### Issues
 
 -   Recursive runs well for - [SNAP: Enron Email Network Dataset](https://snap.stanford.edu/data/email-Enron.html) and [SNAP: Wikipedia Vote Network](https://snap.stanford.edu/data/wiki-Vote.html), but runs into Stack Overflow for [SNAP: AS Skitter Internet Topology Graph](https://snap.stanford.edu/data/as-Skitter.html) dataset due to deep recursion.
 -   Thus, to further optimize the algorithm, we convert it into an iterative version
 
-## Iterative Approach
+## Iterative Approach -->
 
 ## Results
 
 ### Wikipedia Vote Network Dataset
 
-```java
-----------------------STATS----------------------
-Total cliques: 460106
-Max clique size: 17
-Execution time: 26648 ms
-Clique size distribution:
-1: 1184
-2: 8649
-3: 13711
-4: 27290
-5: 48403
-6: 68854
-7: 83242
-8: 76722
-9: 54456
-10: 35470
-11: 21736
-12: 11640
-13: 5449
-14: 2329
-15: 740
-16: 208
-17: 23
-----------------------------------------------------
+```bash
+---------------------------STATS-----------------------------
+Execution time: 43114 ms
+Total number of maximal cliques: 460185
+Number of cliques of different sizes:
+Size 1: 1183 cliques
+Size 2: 8655 cliques
+Size 3: 13718 cliques
+Size 4: 27292 cliques
+Size 5: 48416 cliques
+Size 6: 68872 cliques
+Size 7: 83266 cliques
+Size 8: 76732 cliques
+Size 9: 54456 cliques
+Size 10: 35470 cliques
+Size 11: 21736 cliques
+Size 12: 11640 cliques
+Size 13: 5449 cliques
+Size 14: 2329 cliques
+Size 15: 740 cliques
+Size 16: 208 cliques
+Size 17: 23 cliques
+Size of maximal cliques: 17
+
 ```
 
 ![Wiki Vote Clique Distribution](./graphs/wiki-graph.png)
 
 ### Enron Email Network Dataset
 
-```java
-----------------------STATS----------------------
-Total cliques: 226859
-Max clique size: 20
-Execution time: 35683 ms
-Clique size distribution:
-2: 14070
-3: 7077
-4: 13319
-5: 18143
-6: 22715
-7: 25896
-8: 24766
-9: 22884
-10: 21393
-11: 17833
-12: 15181
-13: 11487
-14: 7417
-15: 3157
-16: 1178
-17: 286
-18: 41
-19: 10
-20: 6
-----------------------------------------------------
+```bash
+---------------------------STATS-----------------------------
+Execution time: 97141 ms
+Total number of maximal cliques: 226859
+Number of cliques of different sizes:
+Size 2: 14070 cliques
+Size 3: 7077 cliques
+Size 4: 13319 cliques
+Size 5: 18143 cliques
+Size 6: 22715 cliques
+Size 7: 25896 cliques
+Size 8: 24766 cliques
+Size 9: 22884 cliques
+Size 10: 21393 cliques
+Size 11: 17833 cliques
+Size 12: 15181 cliques
+Size 13: 11487 cliques
+Size 14: 7417 cliques
+Size 15: 3157 cliques
+Size 16: 1178 cliques
+Size 17: 286 cliques
+Size 18: 41 cliques
+Size 19: 10 cliques
+Size 20: 6 cliques
+Size of maximal cliques: 20
+
 ```
 
 ![Email Enron Clique Distribution](./graphs/email-graph.png)

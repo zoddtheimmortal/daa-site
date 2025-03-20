@@ -4,6 +4,7 @@ nav:
     - Home: index.md
     - Chiba 1985: arboricity.md
     - Tomita 2006: tomita.md
+    - Arch & DS: archds.md
 
 theme:
     name: material

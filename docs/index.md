@@ -17,4 +17,6 @@ Use your mouse to move the nodes of the graph!
 
 <iframe src="./clique_animation.html" width="100%" height="600px"></iframe>
 
+For [Architecture and Dataset](archds.md) info.
+
 <img src="./graphs/akira.png" alt="Akira" width="50" height="100">

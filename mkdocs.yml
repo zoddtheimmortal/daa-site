@@ -2,7 +2,7 @@ site_name: Clique Listing Algorithms
 
 nav:
     - Home: index.md
-    - Arboricity 1985: arboricity.md
+    - Chiba 1985: chiba.md
     - Tomita 2006: tomita.md
 
 theme:

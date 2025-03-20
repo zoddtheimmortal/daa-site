@@ -4,6 +4,96 @@ Norishige Chiba and Takao Nishizeki
 
 The following C++ implementations are based on [Chiba & Nishizeki (1985)](https://doi.org/10.1137/0214017).
 
+## Pseudo Code
+
+```py
+procedure UPDATE (i, C);
+begin
+  if i = n + 1 then
+    print out a new clique C
+  else
+    begin
+      if C - N(i) ≠ ∅ then UPDATE (i + 1, C);
+
+      { Prepare for tests }
+      { Compute T[y] = |N(y) ∩ C ∩ N(i)| for y ∈ V - C - {i} }
+      for each vertex x ∈ C ∩ N(i)
+        do for each vertex y ∈ N(x) - C - {i}
+          do T[y] := T[y] + 1;
+
+      { Compute S[y] = |N(y) ∩ (C - N(i))| for y ∈ V - C }
+      for each vertex x ∈ C - N(i)
+        do for each vertex y ∈ N(x) - C
+          do S[y] := S[y] + 1;
+
+      FLAG := true;
+
+      { Maximality test }
+      if there exists a vertex y ∈ N(i) - C such that y < i and T[y] = |C ∩ N(i)|
+        then FLAG := false; { (C ∩ N(i)) ∪ {i} is not a clique of G }
+
+      { Lexicographic test }
+      { C ∩ N(i) corresponds to C_i in Lemma 6 }
+      sort all the vertices in C - N(i) in ascending order j₁ < j₂ < ... < jₚ,
+      where p = |C - N(i)|;
+
+      for k := 1 to p
+        do for each vertex y ∈ N(jₖ) - C such that y < i and T[y] = |C ∩ N(i)|
+          do
+            if y = jₖ then
+              S[y] := S[y] - 1 { Alter S[y] to S(y) }
+            	else
+		   if (jₖ is the first vertex which satisfies y < jₖ)
+                     then { S[y] := S(jₖ); }
+                     if (S[y] + k = p) and (y ≥ jₖ₋₁) and (i₀ = 0)
+                        then FLAG := false; { C is not lexicographically largest }
+
+       if C ∩ N(i) ≠ ∅
+        then for each vertex y ∉ C ∪ {i} such that y < i, T[y] = |C ∩ N(i)| and S[y] = 0
+          do begin
+            { Access y from the adjacency list of a vertex in C ∩ N(i) }
+            if jₚ < y then FLAG := false; { C is not lexicographically largest }
+          end;
+       else if jₚ < i - 1 then FLAG := false; { C is not lexicographically largest }
+
+      { Reinitialize S and T }
+      for each vertex x ∈ C ∩ N(i)
+        do for each vertex y ∈ N(x) - C - {i}
+          do T[y] := 0;
+
+      for each vertex x ∈ C - N(i)
+        do for each vertex y ∈ N(x) - C
+          do S[y] := 0;
+
+      { FLAG is true if and only if (C ∩ N(i)) ∪ {i} is a clique of G, and C is the
+      lexicographically largest clique of G_i containing C ∩ N(i). }
+
+      if FLAG then
+        begin
+          SAVE := C - N(i);
+          C := (C ∩ N(i)) ∪ {i};
+          UPDATE (i + 1, C);
+          C := (C - {i}) ∪ SAVE;
+        end;
+    end;
+end;
+
+begin { of CLIQUE }
+  number the vertices of a given graph G in such a way that
+  d(1) ≤ d(2) ≤ ... ≤ d(n);
+
+  for i := 1 to n { Initialize S and T }
+    do begin
+      S[i] := 0;
+      T[i] := 0;
+    end;
+
+  C := {1};
+  UPDATE(2, C);
+end { of CLIQUE };
+
+```
+
 ## Usage
 
 Save any of the following code as `chiba.cpp`.

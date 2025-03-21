@@ -45,7 +45,7 @@ begin
             	else
 		   if (jₖ is the first vertex which satisfies y < jₖ)
                      then { S[y] := S(jₖ); }
-                     if (S[y] + k = p) and (y ≥ jₖ₋₁) and (i₀ = 0)
+                     if (S[y] + k = p) and (y ≥ jₖ₋₁) and (j0 = 0)
                         then FLAG := false; { C is not lexicographically largest }
 
        if C ∩ N(i) ≠ ∅

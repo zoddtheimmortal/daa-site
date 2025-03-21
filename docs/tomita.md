@@ -9,196 +9,107 @@ The following C++ implementation is based on [Computational Techniques for Maxim
 ```cpp
 #include <iostream>
 #include <vector>
-#include <set>
-#include <map>
+#include <unordered_set>
 #include <algorithm>
 #include <fstream>
 #include <sstream>
 #include <chrono>
-#include <sys/resource.h>
-#include <cstring>
-
-#define FREQ 1000
-#define ll long long
+#include <unordered_map>
 
 using namespace std;
+using namespace std::chrono;
 
-ll clique_count = 0;
+using Graph = vector<vector<int>>;
 
-using Graph = vector<set<int>>;
+vector<int> Q;
+vector<vector<int>> maximal_cliques;
 
-set<int> intersection(const set<int>& a, const set<int>& b) {
-    set<int> result;
-    set_intersection(a.begin(), a.end(), b.begin(), b.end(),
-                    inserter(result, result.begin()));
+vector<int> intersection(const vector<int>& a, const vector<int>& b) {
+    vector<int> result;
+    set_intersection(a.begin(), a.end(), b.begin(), b.end(), back_inserter(result));
     return result;
 }
 
-set<int> neighbors(const Graph& G, int u) {
-    if (u >= 0 && u < G.size()) {
-        return G[u];
-    }
-    return {};
+vector<int> difference(vector<int> a, const vector<int>& b) {
+    vector<int> result;
+    set_difference(a.begin(), a.end(), b.begin(), b.end(), back_inserter(result));
+    return result;
 }
 
-// increase stack size for deep recursion
-void increase_stack_size(rlim_t stack_size = 512 * 1024 * 1024) {  // 512 MB stack
-    struct rlimit rl;
-
-    int result = getrlimit(RLIMIT_STACK, &rl);
-    if (result != 0) {
-        cerr << "Error getting stack limit: " << strerror(errno) << endl;
+void EXPAND(const Graph& G, vector<int>& cand, vector<int>& SUBG) {
+    if (SUBG.empty()) {
+        maximal_cliques.push_back(Q);
         return;
     }
-
-    if (rl.rlim_cur < stack_size) {
-        rl.rlim_cur = stack_size;
-        if (rl.rlim_max < rl.rlim_cur) {
-            rl.rlim_max = rl.rlim_cur;  // Also increase hard limit if necessary
-        }
-
-        result = setrlimit(RLIMIT_STACK, &rl);
-        if (result != 0) {
-            cerr << "Error setting stack limit: " << strerror(errno) << endl;
-        } else {
-            cerr << "Stack size increased to " << (stack_size / (1024 * 1024)) << " MB" << endl;
-        }
-    }
-}
-
-set<int> difference(const set<int>& a, const set<int>& b) {
-    set<int> result;
-    set_difference(a.begin(), a.end(), b.begin(), b.end(),
-                  inserter(result, result.begin()));
-    return result;
-}
-
-set<int> set_union(const set<int>& a, const set<int>& b) {
-    set<int> result;
-    set_union(a.begin(), a.end(), b.begin(), b.end(),
-             inserter(result, result.begin()));
-    return result;
-}
-
-void TTT(const Graph& G, set<int>& K, set<int>& cand, set<int>& fini,
-    vector<set<int>>& maximal_cliques) {
-
-    if (cand.empty() && fini.empty()) {
-        maximal_cliques.push_back(K); // Still need this copy
-        clique_count++;
-        if(clique_count % FREQ == 0) {
-            cerr << "Found Cliques: " << clique_count << endl;
-        }
-        return;
-    }
-
-    int pivot = -1;
-    int max_size = -1;
-
-    for (int u : cand) {
-        int intersection_size = 0;
-        for (int v : cand) {
-            if (G[u].count(v) > 0) {
-                intersection_size++;
-            }
-        }
-        if (intersection_size > max_size) {
-            max_size = intersection_size;
+    
+    vector<int> fini = difference(SUBG, cand);
+    int pivot = -1, max_size = -1;
+    
+    for (int u : SUBG) {
+        vector<int> intersection_result = intersection(cand, G[u]);
+        if ((int)intersection_result.size() > max_size) {
+            max_size = intersection_result.size();
             pivot = u;
         }
     }
-
-    for (int u : fini) {
-        int intersection_size = 0;
-        for (int v : cand) {
-            if (G[u].count(v) > 0) {
-                intersection_size++;
-            }
-        }
-        if (intersection_size > max_size) {
-            max_size = intersection_size;
-            pivot = u;
-        }
-    }
-
-    vector<int> ext;
-    for (int q : cand) {
-        if (pivot == -1 || G[pivot].count(q) == 0) {
-            ext.push_back(q);
-        }
-    }
-
+    
+    vector<int> ext = difference(cand, G[pivot]);
+    
     for (int q : ext) {
-        // Add q to K
-        K.insert(q);
-
-        set<int> cand_q;
-        set<int> fini_q;
-
-        for (int v : cand) {
-            if (G[q].count(v) > 0) {
-                cand_q.insert(v);
-            }
-        }
-
-        for (int v : fini) {
-            if (G[q].count(v) > 0) {
-                fini_q.insert(v);
-            }
-        }
-
-        TTT(G, K, cand_q, fini_q, maximal_cliques);
-
-        K.erase(q);
-
-        cand.erase(q);
-        fini.insert(q);
+        Q.push_back(q);
+        vector<int> cand_q = intersection(cand, G[q]);
+        vector<int> subg_q = intersection(SUBG, G[q]);
+        
+        EXPAND(G, cand_q, subg_q);
+        
+        Q.pop_back();
+        cand.erase(remove(cand.begin(), cand.end(), q), cand.end());
+        fini.push_back(q);
     }
 }
 
 Graph createGraph(int n, const vector<pair<int, int>>& edges) {
     Graph G(n);
-    cerr << "Creating graph with " << n << " vertices and " << edges.size() << " edges." << endl;
     for (const auto& edge : edges) {
-        G[edge.first].insert(edge.second);
-        G[edge.second].insert(edge.first);
+        G[edge.first].push_back(edge.second);
+        G[edge.second].push_back(edge.first);
     }
-    cerr << "Graph created." << endl;
+    for (auto& neighbors : G) {
+        sort(neighbors.begin(), neighbors.end());
+    }
     return G;
 }
 
-vector<set<int>> findMaximalCliques(const Graph& G) {
-    vector<set<int>> maximal_cliques;
-    set<int> K;
-    set<int> cand;
+vector<vector<int>> CLIQUES(const Graph& G) {
+    Q.clear();
+    maximal_cliques.clear();
+    
+    vector<int> cand(G.size()), subg(G.size());
     for (int i = 0; i < G.size(); i++) {
-        cand.insert(i);
+        cand[i] = i;
+        subg[i] = i;
     }
-    set<int> fini;
-
-    TTT(G, K, cand, fini, maximal_cliques);
-
+    
+    EXPAND(G, cand, subg);
     return maximal_cliques;
 }
 
-void printCliquesStatistics(const vector<set<int>>& cliques) {
-    cout << "Total number of maximal cliques: " << cliques.size() << endl;
-
-    map<int, int> size_count;
-    int max_clique_size = 0;
+void printCliquesCount(vector<vector<int>> cliques, ofstream& outfile) {
+    unordered_map<int, int> size_count;
 
     for (const auto& clique : cliques) {
         size_count[clique.size()]++;
-        max_clique_size = max(max_clique_size, (int)clique.size());
     }
 
-    cout << "Number of cliques of different sizes:" << endl;
-    for (const auto& pair : size_count) {
-        cout << "Size " << pair.first << ": " << pair.second << " cliques" << endl;
-    }
+    vector<pair<int, int>> sorted_sizes(size_count.begin(), size_count.end());
+    sort(sorted_sizes.begin(), sorted_sizes.end());
 
-    cout << "Size of maximal cliques: " << max_clique_size << endl;
+    for (const auto& pair : sorted_sizes) {
+        outfile << "Size " << pair.first << ": " << pair.second << endl;
+    }
 }
+
+
 
 bool readGraphFromFile(const string& filename, int& n, vector<pair<int, int>>& edges) {
     ifstream file(filename);
@@ -206,9 +117,8 @@ bool readGraphFromFile(const string& filename, int& n, vector<pair<int, int>>& e
         cerr << "Error: Could not open file " << filename << endl;
         return false;
     }
-
+    
     string line;
-
     if (getline(file, line)) {
         istringstream iss(line);
         int m;
@@ -220,9 +130,8 @@ bool readGraphFromFile(const string& filename, int& n, vector<pair<int, int>>& e
         cerr << "Error: Empty file" << endl;
         return false;
     }
-
+    
     edges.clear();
-    cerr << "Reading edges..." << endl;
     while (getline(file, line)) {
         istringstream iss(line);
         int u, v;
@@ -231,49 +140,42 @@ bool readGraphFromFile(const string& filename, int& n, vector<pair<int, int>>& e
                 cerr << "Warning: Edge (" << u << ", " << v << ") contains invalid vertex index" << endl;
                 continue;
             }
-            edges.push_back({u, v});
+            edges.emplace_back(u, v);
         } else {
             cerr << "Warning: Invalid edge format in line: " << line << endl;
         }
     }
-
     file.close();
     return true;
 }
 
-int main(int argc, char* argv[]) {
-    increase_stack_size();
-
-    if (argc<2) {
-        cerr << "Usage: " << argv[0] << " <input_file>" << endl;
-        return 1;
-    }
-
+int main() {
     int n;
     vector<pair<int, int>> edges;
-
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
-    cout.tie(nullptr);
-
-    if (!readGraphFromFile(argv[1], n, edges)) {
-        cerr << "Failed to read graph from input file" << endl;
+    
+    if (!readGraphFromFile("C:/Users/HP/Desktop/Acads/3 2/daa/assignment-1/as-skitter.txt", n, edges)) {
+        cerr << "Failed to read graph from input.txt" << endl;
         return 1;
     }
-
-    cerr << "Graph read successfully with " << n << " vertices and " << edges.size() << " edges." << endl;
-
+    
+    ofstream outfile("output.txt");
+    if (!outfile.is_open()) {
+        cerr << "Error: Could not open output.txt for writing" << endl;
+        return 1;
+    }
+    
+    outfile << "Read graph with " << n << " vertices and " << edges.size() << " edges" << endl;
+    
     Graph G = createGraph(n, edges);
-
-    auto start_time = chrono::high_resolution_clock::now();
-    vector<set<int>> maximal_cliques = findMaximalCliques(G);
-    auto end_time = chrono::high_resolution_clock::now();
-
-    auto duration = chrono::duration_cast<chrono::milliseconds>(end_time - start_time).count();
-    cout << "Execution time: " << duration << " ms" << endl;
-
-    printCliquesStatistics(maximal_cliques);
-
+    
+    auto start_time = high_resolution_clock::now();
+    vector<vector<int>> cliques = CLIQUES(G);
+    auto end_time = high_resolution_clock::now();
+    
+    printCliquesCount(cliques, outfile);
+    outfile << "Execution time: " << duration_cast<milliseconds>(end_time - start_time).count() << " milliseconds" << endl;
+    
+    outfile.close();
     return 0;
 }
 ```
@@ -288,7 +190,7 @@ Run the following code in a terminal.
 
 ```bash
 g++ -O3 tomita.cpp
-sudo ./a.out <path_for_inputfile> > output.txt
+./a.out
 ```
 
 Output for the code will be saved in `output.txt`.

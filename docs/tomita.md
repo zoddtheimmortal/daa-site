@@ -2,6 +2,48 @@
 
 Etsuji Tomita, Akira Tanaka, Haruhisa Takahashi
 
+## Pseudocode
+
+The following is the pseudocode of the algorithm
+
+```py
+procedure CLIQUES(G)
+    /* Graph G = (V, E) */
+
+begin
+    /* global variable Q is to constitute a clique */
+    Q := ∅;
+    EXPAND(V, V)
+end of CLIQUES
+
+procedure EXPAND(SUBG, CAND)
+begin
+    if SUBG = ∅
+        then print ("clique,")
+        /* to represent that Q is a maximal clique */
+    else 
+        u := a vertex in SUBG that maximizes | CAND ∩ Γ(u) |;
+        /* let EXT_u = CAND − Γ(u); */
+        /* FINI := ∅; */
+
+        while CAND − Γ(u) ≠ ∅
+        do 
+            q := a vertex in (CAND − Γ(u));
+            print (q, ",");
+            /* to represent the next statement */
+            Q := Q ∪ {q};
+            SUBG_q := SUBG ∩ Γ(q);
+            CAND_q := CAND ∩ Γ(q);
+            EXPAND(SUBG_q, CAND_q);
+            CAND := CAND − {q}; /* FINI := FINI ∪ {q}; */
+            print ("back,");
+            /* to represent the next statement */
+            Q := Q − {q}
+        od
+    fi
+end of EXPAND
+```
+
 ## Recursive Approach
 
 The following C++ implementation is based on [Computational Techniques for Maximum Clique Problems.](https://doi.org/10.1016/j.tcs.2006.06.015)
@@ -104,9 +146,12 @@ void printCliquesCount(vector<vector<int>> cliques, ofstream& outfile) {
     vector<pair<int, int>> sorted_sizes(size_count.begin(), size_count.end());
     sort(sorted_sizes.begin(), sorted_sizes.end());
 
+    int totalcnt=0;
     for (const auto& pair : sorted_sizes) {
         outfile << "Size " << pair.first << ": " << pair.second << endl;
+        totalcnt+=pair.second;
     }
+    outfile<<"Total number of maximal cliques: "<<totalcnt<<endl;
 }
 
 
@@ -153,12 +198,12 @@ int main() {
     int n;
     vector<pair<int, int>> edges;
     
-    if (!readGraphFromFile("C:/Users/HP/Desktop/Acads/3 2/daa/assignment-1/as-skitter.txt", n, edges)) {
+    if (!readGraphFromFile("C:/Users/HP/Desktop/Acads/3 2/daa/assignment-1/tc1.txt", n, edges)) {
         cerr << "Failed to read graph from input.txt" << endl;
         return 1;
     }
     
-    ofstream outfile("output.txt");
+    ofstream outfile("output-email.txt");
     if (!outfile.is_open()) {
         cerr << "Error: Could not open output.txt for writing" << endl;
         return 1;

@@ -20,4 +20,4 @@ Use your mouse to move the nodes of the graph!
 
 For [Architecture and Dataset](archds.md) info.
 
-<img src="./graphs/akira.png" alt="Akira" width="50" height="100">
+<!-- <img src="./graphs/akira.png" alt="Akira" width="50" height="100"> -->

@@ -10,7 +10,7 @@ with open(data_file, 'r') as f:
     data = f.read()
 
 # Extract size and frequency using regex
-pattern = r"Size (\d+): (\d+) cliques"
+pattern = r"Size (\d+): (\d+)"
 matches = re.findall(pattern, data)
 
 # Convert matches to lists of integers

@@ -6,16 +6,15 @@ David Eppstein, Maarten Loffler, and Darren Strash
 
 The following is the pseudocode of the algorithm
 
-## 1️. Bron-Kerbosch without Pivot
+### Bron-Kerbosch without Pivot
+
 ```py
-
-
 
 def bron_kerbosch(P, R, X):
     if not P and not X:
         print("Maximal Clique:", R)
         return
-    
+
     for v in list(P):  # Iterate over a copy to avoid modification issues
         bron_kerbosch(P & neighbors(v), R | {v}, X & neighbors(v))
         P.remove(v)
@@ -24,7 +23,7 @@ def bron_kerbosch(P, R, X):
 
 ```
 
-## 2. Bron-Kerbosch with Pivoting
+### Bron-Kerbosch with Pivoting
 
 ```py
 def bron_kerbosch_pivot(P, R, X):
@@ -39,16 +38,18 @@ def bron_kerbosch_pivot(P, R, X):
         X.add(v)
 ```
 
-## 3. Bron-Kerbosch with Degeneracy Ordering
+### Bron-Kerbosch with Degeneracy Ordering
+
 ```py
 def bron_kerbosch_degeneracy(V, E):
     ordered_vertices = degeneracy_ordering(V, E)  # Compute degeneracy ordering
-    
+
     for i, v in enumerate(ordered_vertices):
         P = {u for u in neighbors(v) if ordered_vertices.index(u) > i}
         X = {u for u in neighbors(v) if ordered_vertices.index(u) < i}
         bron_kerbosch_pivot(P, {v}, X)
 ```
+
 ## Recursive Approach
 
 The following C++ implementation is based on [Efficient Enumeration of Maximal Cliques in Sparse Graphs.](https://arxiv.org/abs/1006.5440)
@@ -107,7 +108,7 @@ unordered_set<int> find_difference(const unordered_set<int>& P, const vector<int
 
 
 // Forward declaration
-void bron_kerbosch_pivot(set<int> P, set<int> R, set<int> X, 
+void bron_kerbosch_pivot(set<int> P, set<int> R, set<int> X,
                         vector<vector<int>>&edges);
 
 // Find pivot to optimize Bron-Kerbosch
@@ -116,28 +117,28 @@ int find_pivot(const unordered_set<int>& P,const unordered_set<int>&R, const uno
     unordered_set<int> union_set;
     union_set.insert(P.begin(), P.end());
     union_set.insert(X.begin(), X.end());
-    
+
     int max_connections = -1;
     int pivot = -1;
-    
+
     // Find the vertex with the most connections to vertices in P
     for (int u : union_set) {
         int connections = 0;
-        
+
         // Count how many vertices in P are adjacent to u
         for (int neighbor : edges[u]) {
             if (P.find(neighbor) != P.end()) {
                 connections++;
             }
         }
-        
+
         // Update pivot if current vertex has more connections
         if (connections > max_connections) {
             max_connections = connections;
             pivot = u;
         }
     }
-    
+
     return pivot;
 }
 
@@ -152,18 +153,18 @@ void bron_kerbosch_pivot(unordered_set<int> P, unordered_set<int> R, unordered_s
         maximal_cliques[cliqueSize]++;
         return ;
     }
-    
+
     // Use pivot to reduce recursive calls
     int pivot = find_pivot(P,R, X, edges);
     unordered_set<int> p_diff_neighbours = find_difference(P, edges[pivot]);
-    
+
     for (auto node : p_diff_neighbours) {
         unordered_set<int> new_P = find_intersect(P, edges[node]);
         unordered_set<int> new_R = find_union(R, node);
         unordered_set<int> new_X = find_intersect(X, edges[node]);
-        
+
         bron_kerbosch_pivot(new_P, new_R, new_X, edges);
-        
+
         P.erase(node);
         X.insert(node);
     }
@@ -171,8 +172,8 @@ void bron_kerbosch_pivot(unordered_set<int> P, unordered_set<int> R, unordered_s
 
 
 // Generate degeneracy ordering
-void find_order(vector<int>& ans, vector<int>& degree, 
-                vector<vector<int>>&edges, 
+void find_order(vector<int>& ans, vector<int>& degree,
+                vector<vector<int>>&edges,
                 vector<int>&vis) {
     for(int k=0;k<edges.size();k++)
     {
@@ -198,12 +199,12 @@ void find_order(vector<int>& ans, vector<int>& degree,
         }
     }
     reverse(ans.begin(),ans.end());
-  
+
 }
 
 // Modified Bron-Kerbosch with degeneracy ordering
 void bron_kerbosch_modified(
-                           vector<vector<int>>&edges, 
+                           vector<vector<int>>&edges,
                            const vector<int>& order,vector<int>&pos) {
     int nodes=edges.size();
     for(int i=0;i<nodes;i++)
@@ -223,9 +224,9 @@ void bron_kerbosch_modified(
         R.insert(node_ini);
         bron_kerbosch_pivot(P,R,X,edges);
     }
-   
-    
-   
+
+
+
 }
 
 // Main function to find maximal cliques
@@ -234,7 +235,7 @@ void  bron_kerbosch(vector<vector<int>>&edges) {
     vector<int>degree(nodes,0);
     vector<int>vis(nodes,0);
     set<int> all_nodes;
-    
+
     for(int i=0;i<nodes;i++)
     {
         degree[i]=edges[i].size();
@@ -246,10 +247,10 @@ void  bron_kerbosch(vector<vector<int>>&edges) {
     for(int i=0;i<nodes;i++) pos[deg_order[i]] = i;
 
     bron_kerbosch_modified(edges, deg_order,pos);
-    
-    
+
+
 }
- 
+
 
 int main(int argc, char* argv[]) {
     ifstream infile(argv[1]);
@@ -306,8 +307,8 @@ int main(int argc, char* argv[]) {
     outfile<<"Total number of maximal cliques:  "<<count<<endl;
     printf("Program executed successfully!!!\n");
     outfile.close();
-   
-    
+
+
     return 0;
 }
 ```
@@ -318,18 +319,17 @@ Save the above code as `bron-kerbosch.cpp`
 
 Run the following code in a terminal.
 
-
 ```bash
 g++ -O3 bron-kerbosch.cpp
-./a.out
+./a.out <input_file_path> <output_file_path>
 ```
 
-Output for the code will be saved in `output.txt`.
+Output for the code will be saved in `<output_file_path>`.
 Terminal will display any error, debugging and progress statements.
 
 ### Results
 
-### Wiki vote dataset
+#### Wiki vote dataset
 
 The algorithm takes 2.21 mins to run on the Wiki Vote dataset.
 
@@ -355,7 +355,7 @@ No of cliques for Size:17 are :23
 
 ```
 
-### Email-Enron dataset
+#### Email-Enron dataset
 
 The algorithm takes 2.59 mins to run on the Email Enron dataset.
 
@@ -381,25 +381,25 @@ No of cliques for Size:17 are :286
 No of cliques for Size:18 are :41
 No of cliques for Size:19 are :10
 No of cliques for Size:20 are :6
-
-
 ```
+
 ### Issues
 
 #### Stack Overflow
 
 1.Since the algorithm uses recursion, larger graphs may run into stack overflow due to deep recursion. To avoid this, we increase the stack space to 512 Mb.
 
-We do this using  the following code:
+We do this using the following code:
 
 VirtualAlloc is best for allocating large stack space dynamically.
+
 ```cpp
 #include <windows.h>
 #include <iostream>
 
 void increase_stack_size(SIZE_T stack_size = 512 * 1024 * 1024) { // 512 MB
     LPVOID stack = VirtualAlloc(nullptr, stack_size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
-    
+
     if (stack == nullptr) {
         std::cerr << "Error increasing stack size: " << GetLastError() << std::endl;
     } else {
@@ -413,12 +413,13 @@ This ensures that we don't run out of stack space, even for larger graphs.
 
 2.Also due to deep recursions on larger dataset the Algorithm may run into SEGMENTATION fault , Thus the code requires more optimizations.
 
+## Optimized Approach
 
-## Optimized Approach :(Using inline function and Mapping down nodes to continuous set of nodes stored in vectors)
+(Using inline function and Mapping down nodes to continuous set of nodes stored in vectors)
 
 ### Code
-```cpp
 
+```cpp
 #include <bits/stdc++.h>
 #include <iostream>
 #include <fstream>
@@ -439,13 +440,13 @@ vector<int> pos;
 
 typedef vector<int> VertexSet;
 
-// Fast binary search for sorted adjacency lists
+
 inline bool is_neighbor(int u, int v, const vector<vector<int>>& edges) {
     const vector<int>& neighbors = edges[u];
     return binary_search(neighbors.begin(), neighbors.end(), v);
 }
 
-// Optimized set intersection for adjacency list and sorted vector
+
 inline void set_intersection_with_adj(const vector<int>& adj, const VertexSet& vec, VertexSet& result) {
     for (int v : adj) {
         if (binary_search(vec.begin(), vec.end(), v)) {
@@ -454,13 +455,13 @@ inline void set_intersection_with_adj(const vector<int>& adj, const VertexSet& v
     }
 }
 
-// Fast pivot selection using sorted vertex sets
-inline int find_pivot_sorted(const VertexSet& P, const VertexSet& X, 
+
+inline int find_pivot_sorted(const VertexSet& P, const VertexSet& X,
                            const vector<vector<int>>& edges) {
     int best_pivot = -1;
     int max_connections = -1;
-    
-    // Try vertices from X first (Tomita optimization)
+
+
     for (int u : X) {
         int connections = 0;
         for (int neighbor : edges[u]) {
@@ -468,14 +469,14 @@ inline int find_pivot_sorted(const VertexSet& P, const VertexSet& X,
                 connections++;
             }
         }
-        
+
         if (connections > max_connections) {
             max_connections = connections;
             best_pivot = u;
         }
     }
-    
-    // Then try vertices from P
+
+
     for (int u : P) {
         int connections = 0;
         for (int neighbor : edges[u]) {
@@ -483,17 +484,17 @@ inline int find_pivot_sorted(const VertexSet& P, const VertexSet& X,
                 connections++;
             }
         }
-        
+
         if (connections > max_connections) {
             max_connections = connections;
             best_pivot = u;
         }
     }
-    
+
     return best_pivot == -1 ? (P.empty() ? X[0] : P[0]) : best_pivot;
 }
 
-// Record clique with efficient array-based counting
+
 inline void record_clique(size_t size) {
     if (size >= clique_counts.size()) {
         clique_counts.resize(size + 100, 0);
@@ -506,146 +507,146 @@ inline void record_clique(size_t size) {
     }
 }
 
-// Optimized Bron-Kerbosch with pivot using sorted vectors
-inline void bron_kerbosch_pivot(VertexSet& P, VertexSet& R, VertexSet& X, 
+
+inline void bron_kerbosch_pivot(VertexSet& P, VertexSet& R, VertexSet& X,
                            const vector<vector<int>>& edges) {
     if (P.empty() && X.empty()) {
         record_clique(R.size());
         return;
     }
-    
-    // Find pivot using sorted sets
+
+
     int pivot = find_pivot_sorted(P, X, edges);
-    
-    // Efficiently compute P minus N(pivot)
+
+
     VertexSet P_minus_N_pivot;
     P_minus_N_pivot.reserve(P.size());
-    
-    // Pivot neighbors lookup table
+
+
     vector<bool> is_pivot_neighbor(edges.size(), false);
     for (int neighbor : edges[pivot]) {
         is_pivot_neighbor[neighbor] = true;
     }
-    
+
     for (int v : P) {
         if (!is_pivot_neighbor[v]) {
             P_minus_N_pivot.push_back(v);
         }
     }
-    
-    // Reusable vectors to avoid allocation in the loop
+
+
     VertexSet new_P, new_X, new_R;
     new_P.reserve(P.size());
     new_X.reserve(X.size());
     new_R.reserve(R.size() + 1);
-    
+
     for (int v : P_minus_N_pivot) {
-        // Construct new_R = R ∪ {v}
+
         new_R = R;
         new_R.push_back(v);
-        
-        // Construct new_P = P ∩ N(v) using sorted vectors
+
+
         new_P.clear();
         set_intersection_with_adj(edges[v], P, new_P);
         sort(new_P.begin(), new_P.end());
-        
-        // Construct new_X = X ∩ N(v) using sorted vectors
+
+
         new_X.clear();
         set_intersection_with_adj(edges[v], X, new_X);
         sort(new_X.begin(), new_X.end());
-        
-        // Recursive call
+
+
         bron_kerbosch_pivot(new_P, new_R, new_X, edges);
-        
-        // Update P and X for next iteration
+
+
         auto it = lower_bound(P.begin(), P.end(), v);
         if (it != P.end() && *it == v) {
             P.erase(it);
         }
-        
+
         X.push_back(v);
         sort(X.begin(), X.end());
     }
 }
 
-// Optimized degeneracy ordering
-void find_order(vector<int>& ans, vector<int>& degree, 
-               vector<vector<int>>& edges, 
+
+void find_order(vector<int>& ans, vector<int>& degree,
+               vector<vector<int>>& edges,
                vector<int>& vis) {
     int n = edges.size();
     int max_degree = 0;
-    
-    // Find the maximum degree
+
+
     for (int i = 0; i < n; i++) {
         max_degree = max(max_degree, degree[i]);
     }
-    
-    // Create buckets for each possible degree
+
+
     vector<list<int>> buckets(max_degree + 1);
     vector<list<int>::iterator> pos(n);
-    
-    // Place nodes in buckets according to their degree
+
+
     for (int i = 0; i < n; i++) {
         buckets[degree[i]].push_back(i);
         pos[i] = --buckets[degree[i]].end();
     }
-    
+
     for (int k = 0; k < n; k++) {
-        // Find the non-empty bucket with minimum degree
+
         int d = 0;
         while (d <= max_degree && buckets[d].empty()) d++;
-        
-        if (d > max_degree) break; // No more nodes
-        
-        // Get the first node from the bucket
+
+        if (d > max_degree) break;
+
+
         int node = buckets[d].front();
         buckets[d].pop_front();
-        
+
         vis[node] = 1;
         ans.push_back(node);
-        
-        // Update degrees of neighbors
+
+
         for (int neighbor : edges[node]) {
             if (!vis[neighbor]) {
-                // Remove from current bucket
+
                 buckets[degree[neighbor]].erase(pos[neighbor]);
-                
-                // Decrease degree
+
+
                 degree[neighbor]--;
-                
-                // Add to new bucket
+
+
                 buckets[degree[neighbor]].push_back(neighbor);
                 pos[neighbor] = --buckets[degree[neighbor]].end();
             }
         }
     }
-    
+
     reverse(ans.begin(), ans.end());
 }
 
-// Optimized modified Bron-Kerbosch with degeneracy ordering
-inline void bron_kerbosch_modified(const vector<vector<int>>& edges, 
+
+inline void bron_kerbosch_modified(const vector<vector<int>>& edges,
                                  const vector<int>& order, const vector<int>& pos) {
     int n = edges.size();
-    
-    // Reusable vectors to avoid memory allocation
+
+
     VertexSet P, X, R;
     P.reserve(n);
     X.reserve(n);
     R.reserve(n);
-    
+
     for (int i = 0; i < n; i++) {
         int v = order[i];
         int v_pos = pos[v];
-        
-        // Clear vectors for reuse
+
+
         P.clear();
         X.clear();
         R.clear();
-        
+
         R.push_back(v);
-        
-        // Efficiently partition neighbors
+
+
         for (int neighbor : edges[v]) {
             int neighbor_pos = pos[neighbor];
             if (neighbor_pos > v_pos) {
@@ -654,11 +655,11 @@ inline void bron_kerbosch_modified(const vector<vector<int>>& edges,
                 X.push_back(neighbor);
             }
         }
-        
-        // Sort for binary search operations
+
+
         sort(P.begin(), P.end());
         sort(X.begin(), X.end());
-        
+
         bron_kerbosch_pivot(P, R, X, edges);
     }
 }
@@ -672,13 +673,13 @@ int main(int argc, char* argv[]) {
         cerr << "Usage: " << argv[0] << " <input_file> <output_file>" << endl;
         return 1;
     }
-    
+
     ifstream infile(argv[1]);
     if (!infile) {
         cerr << "Error: Cannot open input file " << argv[1] << endl;
         return 1;
     }
-    
+
     ofstream outfile(argv[2]);
     if (!outfile) {
         cerr << "Error: Cannot open output file " << argv[2] << endl;
@@ -688,12 +689,12 @@ int main(int argc, char* argv[]) {
     string line;
     vector<pair<int, int>> rawEdges;
     int maxNodeId = -1;
-    
+
     cerr << "Reading input file..." << endl;
     while (getline(infile, line)) {
         if (line.empty() || line[0] == '#')
             continue;
-            
+
         istringstream iss(line);
         int u, v;
         if (iss >> u >> v) {
@@ -705,10 +706,10 @@ int main(int argc, char* argv[]) {
         }
     }
     infile.close();
-    
+
     cerr << "Finished reading input file." << endl;
     cerr << "Number of edges: " << rawEdges.size() / 2 << endl;
-    
+
     if (maxNodeId == -1) {
         outfile << "# For the dataset: " << argv[1] << endl;
         outfile << "Execution time(ms): 0" << endl;
@@ -716,15 +717,15 @@ int main(int argc, char* argv[]) {
         outfile.close();
         return 0;
     }
-    
-    // Use a simple array to detect nodes instead of a set
+
+
     vector<bool> nodeExists(maxNodeId + 1, false);
     for (auto& edge : rawEdges) {
         nodeExists[edge.first] = true;
         nodeExists[edge.second] = true;
     }
-    
-    // Count the actual nodes and create direct mapping
+
+
     int nodeCount = 0;
     vector<int> nodeMapping(maxNodeId + 1, -1);
     for (int i = 0; i <= maxNodeId; i++) {
@@ -732,22 +733,22 @@ int main(int argc, char* argv[]) {
             nodeMapping[i] = nodeCount++;
         }
     }
-    
+
     cerr << "Graph size: " << nodeCount << " nodes" << endl;
-    
-    // Create edge list using the direct mapping
+
+
     vector<vector<int>> newEdgeList(nodeCount);
     for (auto& edge : rawEdges) {
         int newU = nodeMapping[edge.first];
         int newV = nodeMapping[edge.second];
         newEdgeList[newU].push_back(newV);
     }
-    
-    // Remove duplicate edges and sort for binary search
+
+
     for (int i = 0; i < nodeCount; i++) {
         auto& neighbors = newEdgeList[i];
         if (!neighbors.empty()) {
-            // Use sort and unique to remove duplicates
+
             sort(neighbors.begin(), neighbors.end());
             neighbors.erase(unique(neighbors.begin(), neighbors.end()), neighbors.end());
         }
@@ -758,14 +759,14 @@ int main(int argc, char* argv[]) {
     vector<int> vis(v, 0);
     pos.resize(v);
     deg_order.clear();
-    
+
     for (int i = 0; i < v; i++) {
         degree[i] = newEdgeList[i].size();
     }
-    
-    // Initialize clique counting array
+
+
     clique_counts.resize(1000, 0);
-    
+
     find_order(deg_order, degree, newEdgeList, vis);
     for (int i = 0; i < v; i++) pos[deg_order[i]] = i;
 
@@ -779,7 +780,7 @@ int main(int argc, char* argv[]) {
 
     outfile << "# For the dataset: " << argv[1] << endl;
     outfile << "Execution time(ms): " << duration.count() << endl;
-    
+
     long long total_count = 0;
     for (int i = 1; i <= max_clique_size; i++) {
         if (i < clique_counts.size() && clique_counts[i] > 0) {
@@ -787,33 +788,45 @@ int main(int argc, char* argv[]) {
             total_count += clique_counts[i];
         }
     }
-    
+
     outfile << "Total number of maximal cliques: " << total_count << endl;
     outfile << "Maximal clique size: " << max_clique_size << endl;
     outfile.close();
-    
+
     cerr << "Results written to output file." << endl;
     return 0;
 }
-
-
 ```
 
-### Optimizations:
+### Optimizations
 
-1. We used Inline functions into our optimized code , this avoids unnecessary  copy creation of large sets and edge-list
-2. We passed parameters by refernce hence optimizing large number of function calling.
+1. We used Inline functions into our optimized code , this avoids unnecessary copy creation of large sets and edge-list
+2. We passed parameters by reference hence optimizing large number of function calling.
 3. We Mapped down the random nodes number into a continuous set of nodes , so that we can avoid unnecssary complexities of using unordered-map for storing edges and instead using vector with O(1) constant T.C. for fetching adjacency list for specific nodes.
+
+### Usage
+
+Save the above code as `bron-opti.cpp`
+
+Run the following code in a terminal.
+
+```bash
+g++ -O3 bron-opti.cpp
+./a.out <input_file_path> <output_file_path>
+```
+
+Output for the code will be saved in `<output_file_path>`.
+Terminal will display any error, debugging and progress statements.
 
 ### Results
 
-### Wiki vote dataset
+#### Wiki vote dataset
 
 The algorithm takes 0.13 mins to run on the Wiki Vote dataset.
 
 ```bash
 Execution time(ms): 7546
-Size 2: 8656
+Size 2: 8655
 Size 3: 13718
 Size 4: 27292
 Size 5: 48416
@@ -829,19 +842,19 @@ Size 14: 2329
 Size 15: 740
 Size 16: 208
 Size 17: 23
-Total number of maximal cliques: 459003
+Total number of maximal cliques: 459002
 Maximal clique size: 17
 
 ```
 
-### Email-Enron dataset
+#### Email-Enron dataset
 
 The algorithm takes 0.1 mins to run on the Email Enron dataset.
 
 ```bash
 
 Execution time(ms): 6208
-Size 2: 14071
+Size 2: 14070
 Size 3: 7077
 Size 4: 13319
 Size 5: 18143
@@ -860,19 +873,20 @@ Size 17: 286
 Size 18: 41
 Size 19: 10
 Size 20: 6
-Total number of maximal cliques: 226860
+Total number of maximal cliques: 226859
 Maximal clique size: 20
 
 
 
 ```
-### Skitter dataset
+
+#### Skitter dataset
 
 The algorithm takes 63.51 mins to run on the Email Enron dataset.
 
 ```bash
 Execution time(ms): 3810505
-Size 2: 2319808
+Size 2: 2319807
 Size 3: 3171609
 Size 4: 1823321
 Size 5: 939336
@@ -938,14 +952,12 @@ Size 64: 84
 Size 65: 49
 Size 66: 22
 Size 67: 4
-Total number of maximal cliques: 37322356
+Total number of maximal cliques: 37322355
 Maximal clique size: 67
-
-
 ```
 
-### Improvement:
+### Improvement
 
-  1. For Wiki-Vote dataset we can observe a time reduction of 94.12%  by using optimized approach
-  2. For Email-Enron dataset we can observe a time reduction of 96.14%  by using optimized approach
-  3. For skitter dataser we can observe that we are able to find results without running into SEGMENTATION faults
+1. For Wiki-Vote dataset we can observe a time reduction of 94.12%  by using optimized approach
+2. For Email-Enron dataset we can observe a time reduction of 96.14% by using optimized approach
+3. For skitter dataser we can observe that we are able to find results without running into SEGMENTATION faults

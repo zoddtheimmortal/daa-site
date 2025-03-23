@@ -10,6 +10,7 @@ In computer science, the **clique problem** is the computational problem of find
 
 -   [Arboricity and Subgraph Listing Algorithms](arboricity.md) - 1985
 -   [Computational Techniques for Maximum Clique Problems](tomita.md) - 2006
+-   [Listing All Maximal Cliques in Sparse Graphs in Near-optimal Time](bron-kerbosch.md) - 2010
 
 ## Clique Visualization
 

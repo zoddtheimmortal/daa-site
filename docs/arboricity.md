@@ -819,7 +819,6 @@ Size 11: 21736
 Size 12: 11640
 Size 13: 5449
 Size 14: 2329
-
 ```
 
 #### Email Enron Dataset
@@ -853,6 +852,10 @@ Size 11: 17833
 Size 12: 15181
 
 ```
+
+#### Skitter Dataset
+
+The algorithm runs into `SEGMENTATION` fault after a few minutes, even when the stack size is increased to 1GB.
 
 ### Issues
 
@@ -1194,6 +1197,8 @@ Here, the state variable in StackFrame holds info regarding the sequence of the 
 
 ### Results
 
-Results are similar to the [Optimized Approach](#optimized-approach).
+Results are similar to the [Optimized Approach](#optimized-approach) for Wiki and Email Dataset.
 
-For more details, see the [Optimized Approach Results](#results_1) section.
+For Skitter, the algorithm ran for 6hrs and found 52k cliques.
+
+This gives us an `estimated run time` of **4269hrs** for **37M cliques**. Thus, the algorithm was terminated.

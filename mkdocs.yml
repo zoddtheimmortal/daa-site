@@ -4,6 +4,7 @@ nav:
     - Home: index.md
     - Chiba 1985: arboricity.md
     - Tomita 2006: tomita.md
+    - Bron 2010: bron-kerbosch.md
     - Arch & DS: archds.md
 
 theme:
